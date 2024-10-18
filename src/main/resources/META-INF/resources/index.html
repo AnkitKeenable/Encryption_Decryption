@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypted Message</title>
+</head>
+<body>
+<h1>Encrypted Message</h1>
+<p id="encrypted-message"></p>
+
+<script>
+    // Fetch the encrypted message and display it
+    fetch('/message')
+        .then(response => response.text())
+        .then(encryptedMessage => {
+            document.getElementById('encrypted-message').innerText = encryptedMessage;
+        });
+
+    // Listen for the custom key via the developer console
+    function decryptMessage(key) {
+        const encryptedMessage = document.getElementById('encrypted-message').innerText;
+
+        fetch(`/message/decrypt?encrypted=${encodeURIComponent(encryptedMessage)}`, {
+            method: 'GET',
+            headers: {
+                'Key': key  // Passing the key in the header
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.text();  // Decrypt and return message
+            } else {
+                throw new Error('Invalid Key or Request');
+            }
+        })
+        .then(decryptedMessage => {
+            document.getElementById('encrypted-message').innerText = decryptedMessage;
+        })
+        .catch(error => {
+            alert(error.message);
+        });
+    }
+
+    // Function to be called from the developer console to pass the key
+    window.decryptMessage = decryptMessage;
+</script>
+</body>
+</html>
